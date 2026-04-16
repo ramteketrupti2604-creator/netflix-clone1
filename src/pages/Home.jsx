@@ -37,14 +37,14 @@ const Home = () => {
 
       setResults(filtered);
     } catch (err) {
-      console.log(err);
+      console.log("Search error:", err);
     }
   };
 
   return (
     <div className="bg-black text-white min-h-screen pt-20">
 
-      {/* 🔍 SEARCH BAR AT TOP */}
+      {/* 🔍 SEARCH BAR */}
       <div className="fixed top-16 left-0 w-full z-40 bg-black px-4 md:px-6 py-3 shadow-md">
         <input
           value={query}
@@ -54,8 +54,9 @@ const Home = () => {
         />
       </div>
 
-      {/* 🎯 SEARCH RESULTS */}
-      {query ? (
+      {/* 🎯 CONTENT */}
+      {query && results.length > 0 ? (
+        // ✅ SHOW RESULTS
         <div className="pt-28 px-4 md:px-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {results.map((item) => (
             <div
@@ -65,7 +66,7 @@ const Home = () => {
             >
               <img
                 src={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
-                className="rounded hover:scale-105 transition"
+                className="rounded"
               />
               <p className="text-sm mt-1">
                 {item.title || item.name}
@@ -73,15 +74,21 @@ const Home = () => {
             </div>
           ))}
         </div>
+      ) : query ? (
+        // ❗ NO RESULTS
+        <p className="text-center mt-32 text-gray-400">
+          No results found
+        </p>
       ) : (
+        // ✅ DEFAULT CONTENT
         <div className="pt-24">
           <Row
             title="Trending"
-            fetchUrl={`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}&include_adult=true`}
+            fetchUrl={`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}`}
           />
           <Row
             title="Top Rated"
-            fetchUrl={`https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}&include_adult=true`}
+            fetchUrl={`https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}`}
           />
         </div>
       )}

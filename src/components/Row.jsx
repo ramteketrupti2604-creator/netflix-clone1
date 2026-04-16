@@ -7,7 +7,10 @@ const Row = ({ title, fetchUrl }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(fetchUrl).then((res) => setMovies(res.data.results));
+    axios
+      .get(fetchUrl)
+      .then((res) => setMovies(res.data.results || []))
+      .catch((err) => console.log("Row error:", err));
   }, [fetchUrl]);
 
   return (
