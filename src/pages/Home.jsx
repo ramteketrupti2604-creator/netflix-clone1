@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Banner from "../components/Banner";
 import Row from "../components/Row";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -14,12 +13,11 @@ const Home = () => {
   useEffect(() => {
     const delay = setTimeout(() => {
       fetchSearch();
-    }, 500);
+    }, 400);
 
     return () => clearTimeout(delay);
   }, [query]);
 
-  // 🔍 SEARCH (WITH ADULT CONTENT)
   const fetchSearch = async () => {
     if (!query.trim()) {
       setResults([]);
@@ -44,23 +42,21 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-black text-white min-h-screen pt-16">
+    <div className="bg-black text-white min-h-screen pt-20">
 
-      <Banner />
-
-      {/* 🔍 Search */}
-      <div className="p-6 flex justify-center">
+      {/* 🔍 SEARCH BAR AT TOP */}
+      <div className="fixed top-16 left-0 w-full z-40 bg-black px-4 md:px-6 py-3 shadow-md">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search movies & web series..."
-          className="w-full max-w-md px-4 py-2 rounded bg-gray-800 outline-none"
+          className="w-full max-w-xl mx-auto block px-4 py-2 rounded bg-gray-800 outline-none"
         />
       </div>
 
       {/* 🎯 SEARCH RESULTS */}
       {query ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-6">
+        <div className="pt-28 px-4 md:px-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {results.map((item) => (
             <div
               key={item.id}
@@ -78,29 +74,16 @@ const Home = () => {
           ))}
         </div>
       ) : (
-        <>
-          {/* 📺 Categories WITH adult content */}
-
+        <div className="pt-24">
           <Row
             title="Trending"
             fetchUrl={`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}&include_adult=true`}
           />
-
           <Row
             title="Top Rated"
             fetchUrl={`https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}&include_adult=true`}
           />
-
-          <Row
-            title="Action Movies"
-            fetchUrl={`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=28&include_adult=true`}
-          />
-
-          <Row
-            title="Comedy Movies"
-            fetchUrl={`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=35&include_adult=true`}
-          />
-        </>
+        </div>
       )}
     </div>
   );

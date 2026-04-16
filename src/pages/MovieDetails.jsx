@@ -12,9 +12,10 @@ const MovieDetails = () => {
   const [data, setData] = useState(null);
   const [videoId, setVideoId] = useState("");
 
-  // 🔥 Detect type
+  // 🔥 Detect type (movie / tv)
   const type = location.pathname.split("/")[1];
 
+  // 🎬 Fetch details
   useEffect(() => {
     axios
       .get(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`)
@@ -22,7 +23,7 @@ const MovieDetails = () => {
       .catch((err) => console.log(err));
   }, [id, type]);
 
-  // 🎬 WATCH FUNCTION (FIXED)
+  // ▶️ Watch Now (NO REDIRECT)
   const handleWatch = async () => {
     try {
       const res = await axios.get(
@@ -30,35 +31,34 @@ const MovieDetails = () => {
       );
 
       const trailer = res.data.results.find(
-        (vid) => vid.site === "YouTube"
+        (vid) => vid.type === "Trailer" && vid.site === "YouTube"
       );
 
       if (trailer) {
         setVideoId(trailer.key);
       } else {
-        // 🔥 fallback
-        const name = data.title || data.name;
-        window.open(
-          `https://www.youtube.com/results?search_query=${name}+full+movie`,
-          "_blank"
-        );
+        alert("Trailer not available");
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  if (!data) return <div className="text-white p-10">Loading...</div>;
+  if (!data) {
+    return <div className="text-white p-10">Loading...</div>;
+  }
 
   return (
     <div className="bg-black text-white min-h-screen pt-20 px-4 md:px-6">
 
+      {/* 🔥 Main Layout */}
       <div className="flex flex-col md:flex-row gap-6 md:gap-10">
 
         {/* 🎬 Poster */}
         {data.poster_path && (
           <img
             src={`https://image.tmdb.org/t/p/w500${data.poster_path}`}
+            alt={data.title || data.name}
             className="w-40 sm:w-52 md:w-60 rounded"
           />
         )}
@@ -69,7 +69,7 @@ const MovieDetails = () => {
             {data.title || data.name}
           </h1>
 
-          <p className="mt-3 text-gray-300 max-w-xl">
+          <p className="mt-3 text-gray-300 max-w-xl text-sm sm:text-base">
             {data.overview}
           </p>
 
@@ -77,9 +77,10 @@ const MovieDetails = () => {
             ⭐ {data.vote_average}
           </p>
 
+          {/* 🎬 Watch Button */}
           <button
             onClick={handleWatch}
-            className="mt-5 bg-red-600 px-6 py-2 rounded hover:bg-red-700"
+            className="mt-5 bg-red-600 px-6 py-2 rounded hover:bg-red-700 transition"
           >
             ▶ Watch Now
           </button>
@@ -92,6 +93,7 @@ const MovieDetails = () => {
 
           <div className="relative w-[95%] md:w-[70%]">
 
+            {/* ❌ Close */}
             <button
               onClick={() => setVideoId("")}
               className="absolute -top-10 right-0 text-white text-2xl"
@@ -99,6 +101,7 @@ const MovieDetails = () => {
               ✖
             </button>
 
+            {/* 🎬 Player */}
             <YouTube
               videoId={videoId}
               opts={{
