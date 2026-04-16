@@ -12,10 +12,9 @@ const MovieDetails = () => {
   const [data, setData] = useState(null);
   const [videoId, setVideoId] = useState("");
 
-  // 🔥 Detect type (movie or tv)
-  const type = location.pathname.split("/")[1]; 
+  // 🔥 Detect type
+  const type = location.pathname.split("/")[1];
 
-  // 🎬 Fetch movie / tv details
   useEffect(() => {
     axios
       .get(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`)
@@ -23,49 +22,50 @@ const MovieDetails = () => {
       .catch((err) => console.log(err));
   }, [id, type]);
 
-  // ▶️ Watch Trailer (TMDB API)
+  // 🎬 WATCH FUNCTION (FIXED)
   const handleWatch = async () => {
     try {
       const res = await axios.get(
         `https://api.themoviedb.org/3/${type}/${id}/videos?api_key=${API_KEY}`
       );
 
-      // 🎯 Find Trailer
       const trailer = res.data.results.find(
-        (vid) => vid.type === "Trailer" && vid.site === "YouTube"
+        (vid) => vid.site === "YouTube"
       );
 
       if (trailer) {
         setVideoId(trailer.key);
       } else {
-        alert("Trailer not available");
+        // 🔥 fallback
+        const name = data.title || data.name;
+        window.open(
+          `https://www.youtube.com/results?search_query=${name}+full+movie`,
+          "_blank"
+        );
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  if (!data) {
-    return <div className="text-white p-10">Loading...</div>;
-  }
+  if (!data) return <div className="text-white p-10">Loading...</div>;
 
   return (
-    <div className="bg-black text-white min-h-screen pt-20 px-6">
+    <div className="bg-black text-white min-h-screen pt-20 px-4 md:px-6">
 
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-10">
 
         {/* 🎬 Poster */}
         {data.poster_path && (
           <img
             src={`https://image.tmdb.org/t/p/w500${data.poster_path}`}
-            alt={data.title || data.name}
-            className="w-60 rounded"
+            className="w-40 sm:w-52 md:w-60 rounded"
           />
         )}
 
         {/* 📄 Details */}
         <div>
-          <h1 className="text-4xl font-bold">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
             {data.title || data.name}
           </h1>
 
@@ -77,7 +77,6 @@ const MovieDetails = () => {
             ⭐ {data.vote_average}
           </p>
 
-          {/* 🎬 Watch Button */}
           <button
             onClick={handleWatch}
             className="mt-5 bg-red-600 px-6 py-2 rounded hover:bg-red-700"
@@ -91,9 +90,8 @@ const MovieDetails = () => {
       {videoId && (
         <div className="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
 
-          <div className="relative w-[90%] md:w-[70%]">
+          <div className="relative w-[95%] md:w-[70%]">
 
-            {/* ❌ Close Button */}
             <button
               onClick={() => setVideoId("")}
               className="absolute -top-10 right-0 text-white text-2xl"
@@ -101,12 +99,11 @@ const MovieDetails = () => {
               ✖
             </button>
 
-            {/* 🎬 YouTube Player */}
             <YouTube
               videoId={videoId}
               opts={{
                 width: "100%",
-                height: "400",
+                height: window.innerWidth < 768 ? "250" : "400",
                 playerVars: { autoplay: 1 },
               }}
             />
