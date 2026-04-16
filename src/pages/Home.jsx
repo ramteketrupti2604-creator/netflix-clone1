@@ -19,23 +19,28 @@ const Home = () => {
     return () => clearTimeout(delay);
   }, [query]);
 
+  // 🔍 SEARCH (WITH ADULT CONTENT)
   const fetchSearch = async () => {
     if (!query.trim()) {
       setResults([]);
       return;
     }
 
-    const res = await axios.get(
-      `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${query}`
-    );
+    try {
+      const res = await axios.get(
+        `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${query}&include_adult=true`
+      );
 
-    setResults(
-      res.data.results.filter(
+      const filtered = res.data.results.filter(
         (item) =>
           (item.media_type === "movie" || item.media_type === "tv") &&
           item.poster_path
-      )
-    );
+      );
+
+      setResults(filtered);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -43,7 +48,7 @@ const Home = () => {
 
       <Banner />
 
-      {/* Search */}
+      {/* 🔍 Search */}
       <div className="p-6 flex justify-center">
         <input
           value={query}
@@ -53,6 +58,7 @@ const Home = () => {
         />
       </div>
 
+      {/* 🎯 SEARCH RESULTS */}
       {query ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-6">
           {results.map((item) => (
@@ -73,13 +79,26 @@ const Home = () => {
         </div>
       ) : (
         <>
+          {/* 📺 Categories WITH adult content */}
+
           <Row
             title="Trending"
-            fetchUrl={`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}`}
+            fetchUrl={`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}&include_adult=true`}
           />
+
           <Row
             title="Top Rated"
-            fetchUrl={`https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}`}
+            fetchUrl={`https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}&include_adult=true`}
+          />
+
+          <Row
+            title="Action Movies"
+            fetchUrl={`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=28&include_adult=true`}
+          />
+
+          <Row
+            title="Comedy Movies"
+            fetchUrl={`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=35&include_adult=true`}
           />
         </>
       )}
